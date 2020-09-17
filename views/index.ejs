@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>nodeChat on Node.js</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  </style>
+  <script src="../../socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="./css/styles.css">
+</head>
+
+<body>
+  <ul id="messages"></ul>
+  <form action="/" method="POST" id="chatForm">
+    <input id="txt" autocomplete=" off" autofocus="on" placeholder="Type your message here" /><button>Send</button>
+  </form>
+  <script>
+    var socket = io.connect('http://localhost:8080');
+
+    // Submit a text message without reloading the page
+    $('form').submit(function (e) {
+      e.preventDefault(); //stop page from reloading
+      socket.emit('chat_message', $('#txt').val());
+      $('#txt').val('');
+      return false;
+    })
+
+    //append chat message
+    socket.on('chat_message', function (msg) {
+      $('#messages').append($('<li>').html(msg));
+    });
+
+    // append text if someone is online
+    socket.on('is_online', function (username) {
+      $('#messages').append($('<li>').html(username));
+    });
+
+    // Ask for username
+    var username = prompt('Please provide a username.');
+    socket.emit('username', username);
+  </script>
+</body>
+
+</html>
